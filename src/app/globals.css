@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #1a1a1a;
+  --polkadot-pink: #e6007a;
+  --polkadot-light-pink: #ff69b4;
+  --polkadot-dark-pink: #c70065;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(230, 0, 122, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
 }
 
 @theme inline {
@@ -12,15 +18,146 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Glass morphism effects */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-border);
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(230, 0, 122, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(230, 0, 122, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(230, 0, 122, 0.5);
+}
+
+/* Enhanced form inputs */
+.glass-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(230, 0, 122, 0.3);
+  backdrop-filter: blur(10px);
+  color: #1a1a1a;
+}
+
+.glass-input:focus {
+  border-color: var(--polkadot-pink);
+  box-shadow: 0 0 0 3px rgba(230, 0, 122, 0.1);
+}
+
+.glass-input::placeholder {
+  color: rgba(26, 26, 26, 0.6);
+}
+
+/* Enhanced buttons */
+.glass-button {
+  background: rgba(230, 0, 122, 0.1);
+  border: 1px solid rgba(230, 0, 122, 0.3);
+  backdrop-filter: blur(10px);
+  color: var(--polkadot-pink);
+  transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+  background: rgba(230, 0, 122, 0.2);
+  border-color: var(--polkadot-pink);
+  transform: translateY(-1px);
+}
+
+/* Enhanced tables */
+.glass-table {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(230, 0, 122, 0.2);
+}
+
+.glass-table th {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(230, 0, 122, 0.2);
+}
+
+.glass-table td {
+  border-bottom: 1px solid rgba(230, 0, 122, 0.1);
+}
+
+/* Enhanced stats cards */
+.glass-stats-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(230, 0, 122, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for smooth transitions */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced navigation */
+.glass-nav-item {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(230, 0, 122, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.glass-nav-item:hover {
+  background: rgba(230, 0, 122, 0.1);
+  border-color: rgba(230, 0, 122, 0.4);
+  transform: translateX(4px);
+}
+
+.glass-nav-item.active {
+  background: rgba(230, 0, 122, 0.15);
+  border-color: var(--polkadot-pink);
 }

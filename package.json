@@ -9,19 +9,42 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^8.1.0",
+    "@google-cloud/local-auth": "^3.0.1",
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
+    "@polkadot/api": "^16.4.1",
+    "@polkadot/extension-dapp": "^0.61.4",
+    "@polkadot/keyring": "^13.5.3",
+    "@polkadot/rpc-core": "^16.4.1",
+    "@polkadot/rpc-provider": "^16.4.1",
+    "@polkadot/types": "^16.4.1",
+    "@polkadot/types-codec": "^16.4.1",
+    "@polkadot/util": "^13.5.3",
+    "@polkadot/util-crypto": "^13.5.3",
+    "@substrate/connect": "^2.1.8",
+    "axios": "^1.10.0",
+    "clsx": "^2.1.1",
+    "ethers": "^6.15.0",
+    "googleapis": "^153.0.0",
+    "lucide-react": "^0.525.0",
+    "next": "15.4.1",
+    "next-auth": "^4.24.11",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.1"
+    "recharts": "^3.1.0",
+    "tailwind-merge": "^3.3.1",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.4.1",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
