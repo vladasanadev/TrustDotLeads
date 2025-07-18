@@ -123,8 +123,8 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
               Dashboard
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Welcome back! Here's what's happening with your Polkadot lead generation.
+            <p className="text-sm text-gray-600">
+              Here&apos;s what&apos;s happening with your leads today.
             </p>
           </div>
           <div className="flex items-center space-x-2">

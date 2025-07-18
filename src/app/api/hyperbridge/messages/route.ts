@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { hyperbridgeClient } from '@/lib/hyperbridge'
 import { HyperbridgeMessage } from '@/types'
 
-// In a real application, you would store messages in a database
-// For now, we'll use in-memory storage
-let messageStore: HyperbridgeMessage[] = []
+// In-memory storage for messages (in production, use a database)
+const messageStore: HyperbridgeMessage[] = []
 
 export async function GET(request: NextRequest) {
   try {

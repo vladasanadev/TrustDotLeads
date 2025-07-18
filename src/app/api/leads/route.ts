@@ -3,7 +3,7 @@ import { Lead } from '@/types'
 
 // In a real application, this would connect to your database
 // For now, we'll simulate the API behavior
-let leads: Lead[] = []
+const leads: Lead[] = []
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,10 +18,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate IDs and timestamps for new leads
-    const newLeads: Lead[] = leadsData.map((leadData: any, index: number) => ({
+    const newLeads: Lead[] = leadsData.map((leadData: Partial<Lead>, index: number) => ({
       id: `lead_${Date.now()}_${index}`,
-      ...leadData,
+      name: leadData.name || 'Unknown',
+      email: leadData.email || 'unknown@example.com',
+      company: leadData.company || 'Unknown Company',
+      walletAddress: leadData.walletAddress || '',
+      status: leadData.status || 'new',
+      source: leadData.source || 'unknown',
       createdAt: new Date().toISOString(),
+      ...leadData,
     }))
 
     // In a real app, you would save to database here
@@ -47,7 +53,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Return all leads (in a real app, this would come from database)
     return NextResponse.json({
