@@ -15,6 +15,7 @@ interface AddToCrmModalProps {
     email: string
     company: string
     walletAddress: string
+    chain: 'polkadot' | 'ethereum'
     status: 'new' | 'contacted' | 'qualified' | 'converted'
     source: string
     notes: string
@@ -97,6 +98,7 @@ export default function AddToCrmModal({ isOpen, onClose, wallets, onAddToLeads }
       email: `${emailPrefix}.${cleanAddress}@polkadot.leads`,
       company: formData.defaultCompany || (wallet.isStaking ? 'Polkadot Staking' : 'Polkadot Network'),
       walletAddress: wallet.address,
+      chain: wallet.chain as 'polkadot' | 'ethereum', // Include chain information
       status: formData.defaultStatus,
       source: formData.defaultSource,
       notes,

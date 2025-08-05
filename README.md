@@ -1,12 +1,11 @@
-# PolkaLeads - Web3 CRM with Hyperbridge Integration
+# PolkaLeads - first and only lead generation native Polkadot CRM tool with Integration for cross-chain messaging through XMTP, DotLake’s BigQuery tables for wallets filtration, KILT Protocol integration for KYC verification, LeadScore algorithm for tracking and scoring wallet behavior designed for Web2 marketing agencies
+DotLake provides metrics like active accounts and transaction volumes, ideal for identifying high-value leads for Web2 marketing agencies.
 
-A Next.js CRM application for Web3 wallet lead generation, featuring cross-chain messaging capabilities through Hyperbridge ISMP protocol.
 
-## 🌉 Cross-Chain Messaging with Hyperbridge
 
 ### Current Implementation Status
 
-**Enhanced Testnet Integration** - The application now connects to real testnets:
+**Testnet Integration** - The application connects to real testnets
 
 - **Polkadot**: Connected to Paseo testnet (`wss://paseo-rpc.polkadot.io`)
 - **Ethereum**: Connected to Sepolia testnet 

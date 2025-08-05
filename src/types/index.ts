@@ -5,6 +5,7 @@ export interface Lead {
   email: string;
   company: string;
   walletAddress: string;
+  chain: 'polkadot' | 'ethereum'; // Added chain field for cross-chain messaging
   polkadotAddress?: string; // For backward compatibility
   status: 'new' | 'contacted' | 'qualified' | 'converted' | 'opportunity' | 'closed';
   source: string;

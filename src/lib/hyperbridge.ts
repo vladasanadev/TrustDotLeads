@@ -146,14 +146,24 @@ export class HyperbridgeClient {
   private ethereumProvider: ethers.JsonRpcProvider | null = null
   private keyring: Keyring | null = null
   private isInitialized = false
+  private initializePromise: Promise<void> | null = null
   private messageStore: MessageStore = {}
   private eventSubscriptions: (() => void)[] = []
 
   constructor() {
-    this.initialize()
+    // Don't initialize immediately
   }
 
   private async initialize() {
+    if (this.isInitialized || this.initializePromise) {
+      return this.initializePromise
+    }
+
+    this.initializePromise = this._doInitialize()
+    return this.initializePromise
+  }
+
+  private async _doInitialize() {
     try {
       await cryptoWaitReady()
       
@@ -163,14 +173,21 @@ export class HyperbridgeClient {
       
       for (const rpcUrl of HYPERBRIDGE_CONFIG.polkadot.rpc) {
         try {
-          console.log(`🔄 Attempting to connect to Polkadot RPC: ${rpcUrl}`)
+          // Only log in development mode
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`🔄 Attempting to connect to Polkadot RPC: ${rpcUrl}`)
+          }
           polkadotProvider = new WsProvider(rpcUrl)
           this.polkadotApi = await ApiPromise.create({ provider: polkadotProvider })
           connectedPolkadotRpc = rpcUrl
-          console.log(`✅ Successfully connected to Polkadot RPC: ${rpcUrl}`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ Successfully connected to Polkadot RPC: ${rpcUrl}`)
+          }
           break
         } catch (error) {
-          console.warn(`❌ Failed to connect to ${rpcUrl}:`, error)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`❌ Failed to connect to ${rpcUrl}:`, error)
+          }
           if (polkadotProvider) {
             await polkadotProvider.disconnect()
           }
@@ -187,15 +204,21 @@ export class HyperbridgeClient {
       
       for (const rpcUrl of HYPERBRIDGE_CONFIG.ethereum.rpc) {
         try {
-          console.log(`🔄 Attempting to connect to Ethereum RPC: ${rpcUrl}`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`🔄 Attempting to connect to Ethereum RPC: ${rpcUrl}`)
+          }
           this.ethereumProvider = new ethers.JsonRpcProvider(rpcUrl)
           // Test the connection
           await this.ethereumProvider.getBlockNumber()
           connectedEthereumRpc = rpcUrl
-          console.log(`✅ Successfully connected to Ethereum RPC: ${rpcUrl}`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ Successfully connected to Ethereum RPC: ${rpcUrl}`)
+          }
           break
         } catch (error) {
-          console.warn(`❌ Failed to connect to ${rpcUrl}:`, error)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`❌ Failed to connect to ${rpcUrl}:`, error)
+          }
           continue
         }
       }
@@ -211,12 +234,23 @@ export class HyperbridgeClient {
       await this.subscribeToBlockchainEvents()
       
       this.isInitialized = true
-      console.log('🌉 Hyperbridge client initialized with real testnet connections')
-      console.log('📡 Polkadot Paseo:', connectedPolkadotRpc)
-      console.log('📡 Ethereum Sepolia:', connectedEthereumRpc)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🌉 Hyperbridge client initialized with real testnet connections')
+        console.log('📡 Polkadot Paseo:', connectedPolkadotRpc)
+        console.log('📡 Ethereum Sepolia:', connectedEthereumRpc)
+      }
     } catch (error) {
-      console.error('Failed to initialize Hyperbridge client:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to initialize Hyperbridge client:', error)
+      }
       throw error
+    }
+  }
+
+  // Public method to initialize the client
+  public async ensureInitialized(): Promise<void> {
+    if (!this.isInitialized) {
+      await this.initialize()
     }
   }
 
@@ -228,34 +262,48 @@ export class HyperbridgeClient {
 
       // Add reconnection handler for Polkadot
       this.polkadotApi.on('disconnected', () => {
-        console.warn('🔌 Polkadot connection lost, attempting to reconnect...')
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🔌 Polkadot connection lost, attempting to reconnect...')
+        }
         this.handlePolkadotReconnection()
       })
 
       this.polkadotApi.on('error', (error) => {
-        console.error('🚨 Polkadot API error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('🚨 Polkadot API error:', error)
+        }
         this.handlePolkadotReconnection()
       })
 
-      // Subscribe to new blocks on Polkadot
-      this.polkadotApi.rpc.chain.subscribeNewHeads((header) => {
-        console.log(`📦 New Polkadot block: #${header.number}`)
-      })
+      // Subscribe to new blocks on Polkadot (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        this.polkadotApi.rpc.chain.subscribeNewHeads((header) => {
+          console.log(`📦 New Polkadot block: #${header.number}`)
+        })
+      }
 
-      // Subscribe to Ethereum blocks
-      this.ethereumProvider.on('block', (blockNumber) => {
-        console.log(`📦 New Ethereum block: #${blockNumber}`)
-      })
+      // Subscribe to Ethereum blocks (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        this.ethereumProvider.on('block', (blockNumber) => {
+          console.log(`📦 New Ethereum block: #${blockNumber}`)
+        })
+      }
 
       // Add error handler for Ethereum provider
       this.ethereumProvider.on('error', (error) => {
-        console.error('🚨 Ethereum provider error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('🚨 Ethereum provider error:', error)
+        }
         this.handleEthereumReconnection()
       })
 
-      console.log('📡 Subscribed to blockchain events')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📡 Subscribed to blockchain events')
+      }
     } catch (error) {
-      console.error('Failed to subscribe to blockchain events:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to subscribe to blockchain events:', error)
+      }
       // Don't throw here, allow the client to work in offline mode
     }
   }
@@ -345,7 +393,7 @@ export class HyperbridgeClient {
 
   // Send POST request (cross-chain message) - NOW WITH REAL TESTNET INTEGRATION
   async sendPostRequest(message: Omit<HyperbridgeMessage, 'id' | 'status' | 'timestamp' | 'messageType'>): Promise<HyperbridgeMessage> {
-    await this.waitForReady()
+    await this.ensureInitialized()
     
     const hyperbridgeMessage: HyperbridgeMessage = {
       id: `hb_post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -699,7 +747,7 @@ export class HyperbridgeClient {
     callback: (message: HyperbridgeMessage) => void,
     chain: 'polkadot' | 'ethereum' = 'polkadot'
   ) {
-    await this.waitForReady()
+    await this.ensureInitialized()
 
     if (chain === 'polkadot') {
       return this.subscribeToPolkadotMessages(callback)
@@ -863,6 +911,8 @@ export class HyperbridgeClient {
     destChain: 'polkadot' | 'ethereum',
     messageSize: number
   ): Promise<{ relay: string; protocol: string; total: string }> {
+    await this.ensureInitialized()
+    
     // Get real-time fee estimates from testnets
     try {
       let baseFee = sourceChain === 'polkadot' ? 
@@ -915,6 +965,8 @@ export class HyperbridgeClient {
      polkadot: { connected: boolean; blockNumber?: number; chainName?: string }
      ethereum: { connected: boolean; blockNumber?: number; chainName?: string }
    }> {
+     await this.ensureInitialized()
+     
      const status: any = {
        polkadot: { connected: false },
        ethereum: { connected: false }

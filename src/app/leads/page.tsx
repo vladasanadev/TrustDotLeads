@@ -72,9 +72,9 @@ export default function LeadsPage() {
     fetchLeads()
   }, [])
 
-  // Poll for updates every 10 seconds for real-time sync
+  // Poll for updates every 30 seconds for real-time sync (reduced frequency)
   useEffect(() => {
-    const interval = setInterval(fetchLeads, 10000) // More frequent updates
+    const interval = setInterval(fetchLeads, 30000) // Less frequent automatic updates
     return () => clearInterval(interval)
   }, [])
 

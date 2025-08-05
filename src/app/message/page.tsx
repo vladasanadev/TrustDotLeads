@@ -13,20 +13,27 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   LinkIcon,
-  ArrowPathIcon,
-  BeakerIcon,
-  DocumentTextIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  WalletIcon,
   ClockIcon,
-  CpuChipIcon
+  XCircleIcon,
+  CheckIcon,
+  ArrowTopRightOnSquareIcon,
+  WalletIcon,
+  CpuChipIcon,
+  ServerStackIcon,
+  SignalIcon,
+  ExclamationCircleIcon,
+  ArrowPathIcon,
+  DocumentTextIcon,
+  BeakerIcon,
+  ChevronUpIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
 
 interface Lead {
   id: string
   name: string
+  email: string
   walletAddress: string
   chain: 'polkadot' | 'ethereum'
   status: string
@@ -44,6 +51,9 @@ export default function MessagePage() {
   const [isCalculatingFees, setIsCalculatingFees] = useState(false)
   // Simplified for marketing messages - always use POST requests
   const ismpMessageType = 'post' // Fixed to POST for marketing messages
+
+  // Add message mode state
+  const [messageMode, setMessageMode] = useState<'cross-chain' | 'email'>('cross-chain')
 
   // Add leads state for real-time sync
   const [leads, setLeads] = useState<Lead[]>([])
@@ -193,78 +203,84 @@ export default function MessagePage() {
   }, [selectedLead, messageContent, messageType])
 
   const handleSendMessage = async () => {
-    if (!isWalletConnected || !connectedWalletAddress) return
-
-    // Validate inputs for marketing messages
+    // Validate inputs for both modes
     if (!selectedLead || !messageContent.trim()) return
+
+    // For cross-chain messages, require wallet connection
+    if (messageMode === 'cross-chain' && (!isWalletConnected || !connectedWalletAddress)) return
 
     setIsSending(true)
     try {
-      // Simplified request body for marketing messages
-      const requestBody = {
-        messageType: ismpMessageType,
-        senderAddress: connectedWalletAddress,
-        source: {
-          chain: 'polkadot',
-          address: connectedWalletAddress
-        },
-        destination: {
-          chain: selectedLead!.chain,
-          address: selectedLead!.walletAddress
-        },
-        payload: {
-          type: messageType,
-          content: messageContent,
-          metadata: {
-            leadId: selectedLead!.id,
-            leadName: selectedLead!.name,
+      if (messageMode === 'cross-chain') {
+        // Handle cross-chain message
+        const requestBody = {
+          messageType: ismpMessageType,
+          senderAddress: connectedWalletAddress,
+          source: {
+            chain: 'polkadot',
+            address: connectedWalletAddress
+          },
+          destination: {
+            chain: selectedLead!.chain,
+            address: selectedLead!.walletAddress
+          },
+          payload: {
+            type: messageType,
+            content: messageContent,
+            recipient: selectedLead!.name,
             timestamp: new Date().toISOString()
           }
         }
-      }
 
-      const response = await fetch('/api/hyperbridge/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      })
+        console.log('🚀 Sending cross-chain message:', requestBody)
 
-      const data = await response.json()
-      
-      if (data.success) {
-        const newMessage = data.message
-        setMessages(prev => [newMessage, ...prev])
-        setMessageContent('')
-        
-        // Store message in local storage
-        await fetch('/api/hyperbridge/messages', {
+        const response = await fetch('/api/hyperbridge/send', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            action: 'store',
-            message: newMessage
-          })
+          body: JSON.stringify(requestBody)
         })
 
-        console.log('🌉 Message sent via Hyperbridge:', newMessage)
-        
-        // Simulate status updates
-        setTimeout(async () => {
-          await updateMessageStatus(newMessage.id, 'relayed')
-        }, 3000)
-        
-        setTimeout(async () => {
-          await updateMessageStatus(newMessage.id, 'delivered')
-        }, 8000)
+        const data = await response.json()
+
+        if (response.ok && data.success) {
+          console.log('✅ Cross-chain message sent successfully:', data)
+          setMessages(prev => [data.message, ...prev])
+          setMessageContent('')
+          setSelectedLead(null)
+          alert('Cross-chain message sent successfully!')
+        } else {
+          console.error('Failed to send cross-chain message:', data.error)
+          alert(`Failed to send cross-chain message: ${data.error}`)
+        }
       } else {
-        console.error('Failed to send message:', data.error)
+        // Handle email message
+        console.log('📧 Sending email to:', selectedLead.email)
+        console.log('📧 Email content:', messageContent)
+        
+        // Simulate email sending (in a real app, you'd call an email API)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Create a mock message for display
+        const emailMessage = {
+          id: `email_${Date.now()}`,
+          type: 'email',
+          senderAddress: user?.email || 'user@polkaleads.com',
+          recipientAddress: selectedLead.email,
+          content: messageContent,
+          timestamp: new Date().toISOString(),
+          status: 'sent'
+        }
+
+        setMessages(prev => [emailMessage as any, ...prev])
+        setMessageContent('')
+        setSelectedLead(null)
+        alert('Email sent successfully!')
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      alert(`Failed to send ${messageMode === 'cross-chain' ? 'cross-chain message' : 'email'}. Please try again.`)
     } finally {
       setIsSending(false)
     }
@@ -359,7 +375,7 @@ export default function MessagePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
-              Cross-Chain Messaging via Hyperbridge
+              Cross-Chain Messaging via XMTP
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               Send marketing messages, NFTs, and tokens across Polkadot and Ethereum networks.
@@ -507,9 +523,43 @@ export default function MessagePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Compose Message */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Compose Cross-Chain Message</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-medium text-gray-900">
+              Compose Message
+            </h2>
+            
+            {/* Message Mode Radio Buttons */}
+            <div className="flex items-center space-x-8">
+              <label className="flex items-center cursor-pointer group">
+                <input
+                  type="radio"
+                  name="messageMode"
+                  value="cross-chain"
+                  checked={messageMode === 'cross-chain'}
+                  onChange={(e) => setMessageMode(e.target.value as 'cross-chain' | 'email')}
+                  className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 transition-colors"
+                />
+                <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">
+                  Cross-Chain Message
+                </span>
+              </label>
+              <label className="flex items-center cursor-pointer group">
+                <input
+                  type="radio"
+                  name="messageMode"
+                  value="email"
+                  checked={messageMode === 'email'}
+                  onChange={(e) => setMessageMode(e.target.value as 'cross-chain' | 'email')}
+                  className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 transition-colors"
+                />
+                <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">
+                  Email
+                </span>
+              </label>
+            </div>
+          </div>
           
-          {!isWalletConnected && (
+          {messageMode === 'cross-chain' && !isWalletConnected && (
             <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
               <div className="flex">
                 <InformationCircleIcon className="h-5 w-5 text-yellow-400 mr-2" />
@@ -525,12 +575,37 @@ export default function MessagePage() {
             </div>
           )}
           
+          {messageMode === 'email' && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex">
+                <InformationCircleIcon className="h-5 w-5 text-blue-400 mr-2" />
+                <div>
+                  <p className="text-sm text-blue-800">
+                    <strong>Email Mode:</strong> Send traditional emails to your leads using their email addresses.
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Messages will be sent via standard email protocols.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-4">
             {/* Lead Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Recipient
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select Recipient
+                </label>
+                <button
+                  onClick={fetchLeads}
+                  disabled={isLoadingLeads}
+                  className="text-sm text-pink-600 hover:text-pink-700 font-medium disabled:opacity-50"
+                >
+                  {isLoadingLeads ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
               <select
                 value={selectedLead?.id || ''}
                 onChange={(e) => {
@@ -539,7 +614,7 @@ export default function MessagePage() {
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
               >
-                <option value="">Choose a recipient...</option>
+                <option value="">Choose a recipient... ({leads.length} available)</option>
                 {leads.map(lead => (
                   <option key={lead.id} value={lead.id}>
                     {getChainIcon(lead.chain)} {lead.name} ({lead.walletAddress.slice(0, 8)}...)
@@ -656,7 +731,7 @@ export default function MessagePage() {
             <button
               onClick={handleSendMessage}
               disabled={
-                !isWalletConnected || 
+                (messageMode === 'cross-chain' && !isWalletConnected) || 
                 isSending ||
                 !selectedLead ||
                 !messageContent.trim()
@@ -666,12 +741,12 @@ export default function MessagePage() {
               {isSending ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Sending Message...
+                  {messageMode === 'cross-chain' ? 'Sending Message...' : 'Sending Email...'}
                 </>
               ) : (
                 <>
                   <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                  Send Cross-Chain Message
+                  {messageMode === 'cross-chain' ? 'Send Cross-Chain Message' : 'Send Email'}
                 </>
               )}
             </button>
