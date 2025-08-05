@@ -5,7 +5,7 @@ import { google } from 'googleapis'
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com'
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || 'your_secret_here'
-const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/api/auth/google/callback`
+const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/google/callback`
 
 const oauth2Client = new OAuth2Client(
   GOOGLE_CLIENT_ID,
@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Google OAuth error:', error)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/login?error=oauth_error`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=oauth_error`)
     }
 
     if (!code) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/login?error=no_code`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=no_code`)
     }
 
     // Exchange code for tokens
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const user = userInfo.data
 
     if (!user.email) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/login?error=no_email`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=no_email`)
     }
 
     // Create user data for our application
@@ -61,10 +61,10 @@ export async function GET(request: NextRequest) {
     // For now, we'll redirect with the user data as query parameters (base64 encoded)
     const userDataEncoded = Buffer.from(JSON.stringify(userData)).toString('base64')
     
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/login?google_auth=success&user_data=${userDataEncoded}`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?google_auth=success&user_data=${userDataEncoded}`)
 
   } catch (error) {
     console.error('Google OAuth callback error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/login?error=callback_error`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=callback_error`)
   }
 } 

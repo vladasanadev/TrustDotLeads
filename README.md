@@ -1,14 +1,25 @@
-# PolkaLeads - first and only lead generation native Polkadot CRM tool with Integration for cross-chain messaging through XMTP, DotLake’s BigQuery tables for wallets filtration, KILT Protocol integration for KYC verification, LeadScore algorithm for tracking and scoring wallet behavior designed for Web2 marketing agencies
-DotLake provides metrics like active accounts and transaction volumes, ideal for identifying high-value leads for Web2 marketing agencies.
+PolkaLeads is a blockchain-driven CRM tool for Web2 marketing agencies that enhances lead generation by integrating Polkadot’s cross-chain messaging (via XMTP) and utilizing DotLake’s BigQuery tables for wallet filtration. This provides agencies with more targeted and reliable leads by leveraging the rich, on-chain data of the Polkadot ecosystem.
 
 
+**Integration with Polkadot**
+
+PolkaLeads utilizes Polkadot’s multi-chain ecosystem to access and filter real-time wallet data, ensuring that marketing agencies can target high-value leads. The integration leverages:
+
+XMTP for decentralized communication between applications.
+
+DotLake BigQuery for real-time on-chain analytics, improving lead identification.
+
+Scalable Infrastructure via Polkadot parachains for seamless, high-performance operation.
+
+Shared Security to ensure data integrity and reliability.
+
+On-Chain Governance for maintaining transparency and decision-making.
 
 ### Current Implementation Status
 
-**Testnet Integration** - The application connects to real testnets
+
 
 - **Polkadot**: Connected to Paseo testnet (`wss://paseo-rpc.polkadot.io`)
-- **Ethereum**: Connected to Sepolia testnet 
 - **Real-time Status**: Live blockchain connection monitoring
 - **Dynamic Fees**: Real-time gas price-based fee calculation
 
@@ -55,16 +66,6 @@ For full production deployment, you would need:
 4. **Message Signing**: Proper transaction signing with user accounts
 5. **Relayer Network**: Active relayers for message delivery
 
-### 🛠 Technical Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Polkadot     │    │   Hyperbridge   │    │   Ethereum      │
-│   (Paseo)      │◄──►│   Protocol      │◄──►│   (Sepolia)     │
-│                │    │                 │    │                 │
-│ pallet-ismp    │    │ ISMP Messages   │    │ ISMP Handler    │
-│ Message Queue  │    │ Consensus Proofs│    │ Contract        │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ### 📊 Message Flow
@@ -72,10 +73,9 @@ For full production deployment, you would need:
 1. **User Action**: Compose message in PolkaLeads UI
 2. **ISMP Creation**: Message structured as DispatchPost
 3. **Blockchain Dispatch**: Submitted to source chain (Polkadot/Ethereum)
-4. **Hyperbridge Relay**: Message picked up by Hyperbridge relayers
-5. **Proof Generation**: Consensus proofs generated
-6. **Destination Delivery**: Message delivered to destination chain
-7. **Status Update**: UI updated with delivery confirmation
+4. **Proof Generation**: Consensus proofs generated
+5. **Destination Delivery**: Message delivered to destination chain
+6. **Status Update**: UI updated with delivery confirmation
 
 ### 🎯 Marketing Use Cases
 
